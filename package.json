@@ -11,6 +11,7 @@
     "author": "soumya dey",
     "license": "MIT",
     "dependencies": {
+        "crypto": "^1.0.1",
         "express": "^4.17.1",
         "razorpay": "^2.0.6"
     },

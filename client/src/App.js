@@ -47,9 +47,10 @@ function App() {
             order_id: order_id,
             handler: async function (response) {
                 const data = {
-                    paymentId: response.razorpay_payment_id,
-                    orderId: response.razorpay_order_id,
-                    signature: response.razorpay_signature,
+                    orderCreationId: order_id,
+                    razorpayPaymentId: response.razorpay_payment_id,
+                    razorpayOrderId: response.razorpay_order_id,
+                    razorpaySignature: response.razorpay_signature,
                 };
 
                 const result = await axios.post("/payment/success", data);
@@ -65,7 +66,7 @@ function App() {
                 address: "Soumya Dey Corporate Office",
             },
             theme: {
-                color: "#F37254",
+                color: "#61dafb",
             },
         };
 
@@ -77,9 +78,7 @@ function App() {
         <div className="App">
             <header className="App-header">
                 <img src={logo} className="App-logo" alt="logo" />
-                <p>
-                    Edit <code>src/App.js</code> and save to reload.
-                </p>
+                <p>Buy React now!</p>
                 <button className="App-link" onClick={displayRazorpay}>
                     Pay ₹500
                 </button>

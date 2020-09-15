@@ -1,5 +1,6 @@
 const express = require("express");
 const Razorpay = require("razorpay");
+const crypto = require("crypto");
 
 const router = express.Router();
 
@@ -28,7 +29,19 @@ router.post("/orders", async (req, res) => {
 
 router.post("/success", async (req, res) => {
     try {
-        const { paymentId, orderId, signature } = req.body;
+        const {
+            orderCreationId,
+            razorpayPaymentId,
+            razorpayOrderId,
+            razorpaySignature,
+        } = req.body;
+
+        const shasum = crypto.createHmac("sha256", "w2lBtgmeuDUfnJVp43UpcaiT");
+        shasum.update(`${orderCreationId}|${razorpayPaymentId}`);
+        const digest = shasum.digest("hex");
+
+        if (digest !== razorpaySignature)
+            return res.status(400).json({ msg: "Transaction not legit!" });
 
         res.json({ msg: "success" });
     } catch (error) {
