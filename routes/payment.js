@@ -1,14 +1,27 @@
+require("dotenv").config();
 const express = require("express");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
+const mongoose = require("mongoose");
 
 const router = express.Router();
+
+const PaymentDetailsSchema = mongoose.Schema({
+    razorpayDetails: {
+        orderId: String,
+        paymentId: String,
+        signature: String,
+    },
+    success: Boolean,
+});
+
+const PaymentDetails = mongoose.model("PatmentDetail", PaymentDetailsSchema);
 
 router.post("/orders", async (req, res) => {
     try {
         const instance = new Razorpay({
-            key_id: "rzp_test_r6FiJfddJh76SI",
-            key_secret: "w2lBtgmeuDUfnJVp43UpcaiT",
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_SECRET,
         });
 
         const options = {
@@ -43,7 +56,22 @@ router.post("/success", async (req, res) => {
         if (digest !== razorpaySignature)
             return res.status(400).json({ msg: "Transaction not legit!" });
 
-        res.json({ msg: "success" });
+        const newPayment = PaymentDetails({
+            razorpayDetails: {
+                orderId: razorpayOrderId,
+                paymentId: razorpayPaymentId,
+                signature: razorpaySignature,
+            },
+            success: true,
+        });
+
+        await newPayment.save();
+
+        res.json({
+            msg: "success",
+            orderId: razorpayOrderId,
+            paymentId: razorpayPaymentId,
+        });
     } catch (error) {
         res.status(500).send(error);
     }
